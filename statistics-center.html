@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Center</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --grid-line: rgba(148, 163, 184, 0.1);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .input-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .data-table {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-input);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: #ef4444;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border: 1px solid #ef4444;
+        }
+
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .google-sheets-section {
+            background: linear-gradient(135deg, #34a853 0%, #0f9d58 100%);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: white;
+        }
+
+        .google-sheets-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .connection-input {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .connection-input input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .connection-input input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .connection-input button {
+            background: white;
+            color: #0f9d58;
+        }
+
+        .connection-input button:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .time-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .time-range-display {
+            padding: 0.75rem 2rem;
+            background: var(--bg-input);
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .nav-btn-small {
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-btn-small:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent);
+        }
+
+        .nav-btn:hover {
+            background: var(--border);
+            transform: translateY(-1px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .nav-btn-reset {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .nav-btn-reset:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Statistics Center</h1>
+            <p class="subtitle">Business Metrics Dashboard</p>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span>Local Storage Active</span>
+            </div>
+        </header>
+
+        <div class="input-section">
+            <h2>Add Monthly Data</h2>
+            <form id="dataForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="month">Month</label>
+                        <input type="month" id="month" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sales">Sales (₪)</label>
+                        <input type="number" id="sales" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customers">Number of Customers</label>
+                        <input type="number" id="customers" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contracts">Contracts Sent</label>
+                        <input type="number" id="contracts" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employees">Number of Employees</label>
+                        <input type="number" id="employees" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="debt">Debt (₪)</label>
+                        <input type="number" id="debt" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCustomers">New Customers</label>
+                        <input type="number" id="newCustomers" placeholder="0" required>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Save Data</button>
+                    <button type="button" class="btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="time-navigation">
+            <button class="nav-btn" onclick="shiftTimeRange(-12)" title="Previous 12 months">⏪ Previous Year</button>
+            <button class="nav-btn nav-btn-small" onclick="shiftTimeRange(-3)" title="Previous 3 months">⬅️ 3 Months</button>
+            <div class="time-range-display">
+                <span id="timeRangeText">Last 12 Months</span>
+            </div>
+            <button class="nav-btn nav-btn-small" onclick="shiftTimeRange(3)" title="Next 3 months">3 Months ➡️</button>
+            <button class="nav-btn" onclick="shiftTimeRange(12)" title="Next 12 months">Next Year ⏩</button>
+            <button class="nav-btn nav-btn-reset" onclick="resetToLatest()" title="Return to latest 12 months">📅 Latest</button>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">Sales</span>
+                    <span class="chart-value" id="salesValue">₪0</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">Number of Customers</span>
+                    <span class="chart-value" id="customersValue">0</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="customersChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">Contracts Sent</span>
+                    <span class="chart-value" id="contractsValue">0</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="contractsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">Number of Employees</span>
+                    <span class="chart-value" id="employeesValue">0</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="employeesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">Debt</span>
+                    <span class="chart-value" id="debtValue">₪0</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="debtChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">New Customers</span>
+                    <span class="chart-value" id="newCustomersValue">0</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="newCustomersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <div class="table-header">
+                <h2>Historical Data</h2>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Sales (₪)</th>
+                            <th>Customers</th>
+                            <th>Contracts</th>
+                            <th>Employees</th>
+                            <th>Debt (₪)</th>
+                            <th>New Customers</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                                No data yet. Add your first entry above!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="google-sheets-section">
+            <h2>🔗 Connect to Google Sheets (Coming Soon)</h2>
+            <p>Sync your data with Google Sheets for access from any device. This feature will be available in the next version.</p>
+            <div class="connection-input">
+                <input type="text" placeholder="Google Sheets URL will go here..." disabled>
+                <button disabled>Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage - Pre-populated with your data
+        let businessData = [
+            // 2024 Data
+            {month: "2024-01", sales: 48698, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-02", sales: 51172, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-03", sales: 41808, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-04", sales: 32501, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-05", sales: 41287, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-06", sales: 23430, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-07", sales: 24702, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-08", sales: 28340, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-09", sales: 32411, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-10", sales: 44028, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-11", sales: 25081, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2024-12", sales: 25486, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            // 2025 Data
+            {month: "2025-01", sales: 39133, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-02", sales: 24522, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-03", sales: 29452, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-04", sales: 35958, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-05", sales: 34769, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-06", sales: 34711, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-07", sales: 46923, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-08", sales: 53270, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-09", sales: 42584, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-10", sales: 60680, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-11", sales: 57656, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            {month: "2025-12", sales: 66364, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0},
+            // 2026 Data
+            {month: "2026-01", sales: 68102, customers: 0, contracts: 0, employees: 0, debt: 0, newCustomers: 0}
+        ];
+        let charts = {};
+        let currentOffset = 0; // 0 = latest 12 months, -12 = previous year, etc.
+        
+        // Always save the pre-populated data to localStorage (overwrites old data)
+        localStorage.setItem('businessData', JSON.stringify(businessData));
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            updateDashboard();
+            setDefaultMonth();
+        });
+
+        // Set default month to current
+        function setDefaultMonth() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            document.getElementById('month').value = `${year}-${month}`;
+        }
+
+        // Form submission
+        document.getElementById('dataForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                month: document.getElementById('month').value,
+                sales: parseFloat(document.getElementById('sales').value),
+                customers: parseInt(document.getElementById('customers').value),
+                contracts: parseInt(document.getElementById('contracts').value),
+                employees: parseInt(document.getElementById('employees').value),
+                debt: parseFloat(document.getElementById('debt').value),
+                newCustomers: parseInt(document.getElementById('newCustomers').value)
+            };
+
+            // Check if month already exists
+            const existingIndex = businessData.findIndex(d => d.month === data.month);
+            if (existingIndex >= 0) {
+                if (confirm('Data for this month already exists. Do you want to update it?')) {
+                    businessData[existingIndex] = data;
+                } else {
+                    return;
+                }
+            } else {
+                businessData.push(data);
+            }
+
+            // Sort by month
+            businessData.sort((a, b) => new Date(a.month) - new Date(b.month));
+
+            // Save to localStorage
+            localStorage.setItem('businessData', JSON.stringify(businessData));
+
+            // Update dashboard
+            updateDashboard();
+
+            // Clear form
+            clearForm();
+
+            // Show success message
+            alert('Data saved successfully!');
+        });
+
+        function clearForm() {
+            document.getElementById('dataForm').reset();
+            setDefaultMonth();
+        }
+
+        function deleteEntry(month) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                businessData = businessData.filter(d => d.month !== month);
+                localStorage.setItem('businessData', JSON.stringify(businessData));
+                updateDashboard();
+            }
+        }
+
+        function editEntry(month) {
+            const entry = businessData.find(d => d.month === month);
+            if (entry) {
+                document.getElementById('month').value = entry.month;
+                document.getElementById('sales').value = entry.sales;
+                document.getElementById('customers').value = entry.customers;
+                document.getElementById('contracts').value = entry.contracts;
+                document.getElementById('employees').value = entry.employees;
+                document.getElementById('debt').value = entry.debt;
+                document.getElementById('newCustomers').value = entry.newCustomers;
+                
+                // Scroll to form
+                document.getElementById('dataForm').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function initializeCharts() {
+            const chartConfig = {
+                type: 'line',
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            };
+
+            const chartIds = ['sales', 'customers', 'contracts', 'employees', 'debt', 'newCustomers'];
+            chartIds.forEach(id => {
+                const ctx = document.getElementById(`${id}Chart`).getContext('2d');
+                charts[id] = new Chart(ctx, {
+                    ...chartConfig,
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: id.charAt(0).toUpperCase() + id.slice(1),
+                            data: [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#1e293b',
+                            pointBorderWidth: 2
+                        }]
+                    }
+                });
+            });
+        }
+
+        function updateDashboard() {
+            if (businessData.length === 0) {
+                return;
+            }
+
+            // Always display exactly 12 months, shifted by currentOffset
+            let endIndex = businessData.length + currentOffset;
+            
+            // Make sure endIndex is within bounds
+            if (endIndex > businessData.length) {
+                endIndex = businessData.length;
+                currentOffset = 0; // Reset to latest
+            }
+            
+            if (endIndex < 12) {
+                endIndex = 12; // Always show at least 12 months if available
+            }
+            
+            let startIndex = endIndex - 12;
+            
+            if (startIndex < 0) {
+                startIndex = 0;
+                endIndex = Math.min(12, businessData.length);
+            }
+            
+            const displayData = businessData.slice(startIndex, endIndex);
+            
+            if (displayData.length === 0) {
+                return;
+            }
+
+            // Update time range display
+            updateTimeRangeDisplay(displayData);
+
+            // Prepare labels
+            const labels = displayData.map(d => {
+                // Parse YYYY-MM format correctly
+                const [year, month] = d.month.split('-');
+                const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+                return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            });
+
+            // Update charts
+            const metrics = ['sales', 'customers', 'contracts', 'employees', 'debt', 'newCustomers'];
+            metrics.forEach(metric => {
+                const data = displayData.map(d => d[metric]);
+                charts[metric].data.labels = labels;
+                charts[metric].data.datasets[0].data = data;
+                charts[metric].update();
+
+                // Update current value display (show latest value in the displayed range)
+                const latestValue = data[data.length - 1];
+                const valueElement = document.getElementById(`${metric}Value`);
+                if (metric === 'sales' || metric === 'debt') {
+                    valueElement.textContent = `₪${latestValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                } else {
+                    valueElement.textContent = latestValue.toLocaleString('en-US');
+                }
+            });
+
+            // Update table
+            updateTable();
+        }
+
+        function updateTimeRangeDisplay(displayData) {
+            const timeRangeText = document.getElementById('timeRangeText');
+            
+            if (currentOffset === 0) {
+                timeRangeText.textContent = 'Last 12 Months';
+            } else {
+                const firstMonth = displayData[0].month;
+                const lastMonth = displayData[displayData.length - 1].month;
+                
+                const [firstYear, firstMonthNum] = firstMonth.split('-');
+                const [lastYear, lastMonthNum] = lastMonth.split('-');
+                
+                const firstDate = new Date(parseInt(firstYear), parseInt(firstMonthNum) - 1, 1);
+                const lastDate = new Date(parseInt(lastYear), parseInt(lastMonthNum) - 1, 1);
+                
+                const firstFormatted = firstDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                const lastFormatted = lastDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                
+                timeRangeText.textContent = `${firstFormatted} - ${lastFormatted}`;
+            }
+        }
+
+        function shiftTimeRange(months) {
+            const newOffset = currentOffset + months;
+            
+            // Calculate boundaries
+            const maxNegativeOffset = -(businessData.length - 12);
+            
+            // Don't go beyond the available data
+            if (newOffset > 0) {
+                currentOffset = 0; // Can't go into the future beyond latest
+                updateDashboard();
+                return;
+            }
+            
+            // Don't go too far back (need at least 12 months to display)
+            if (newOffset < maxNegativeOffset) {
+                currentOffset = maxNegativeOffset;
+                updateDashboard();
+                return;
+            }
+            
+            currentOffset = newOffset;
+            updateDashboard();
+        }
+
+        function resetToLatest() {
+            currentOffset = 0;
+            updateDashboard();
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            if (businessData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            No data yet. Add your first entry above!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Show data in reverse chronological order
+            const reversedData = [...businessData].reverse();
+            reversedData.forEach(entry => {
+                // Parse YYYY-MM format correctly
+                const [year, month] = entry.month.split('-');
+                const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+                const formattedMonth = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formattedMonth}</td>
+                    <td>₪${entry.sales.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td>${entry.customers.toLocaleString('en-US')}</td>
+                    <td>${entry.contracts.toLocaleString('en-US')}</td>
+                    <td>${entry.employees.toLocaleString('en-US')}</td>
+                    <td>₪${entry.debt.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td>${entry.newCustomers.toLocaleString('en-US')}</td>
+                    <td>
+                        <button class="delete-btn" onclick="editEntry('${entry.month}')">Edit</button>
+                        <button class="delete-btn" onclick="deleteEntry('${entry.month}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Export/Import functionality (for future Google Sheets integration)
+        function exportData() {
+            const dataStr = JSON.stringify(businessData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'business-statistics.json';
+            link.click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (confirm('This will replace all existing data. Continue?')) {
+                            businessData = imported;
+                            localStorage.setItem('businessData', JSON.stringify(businessData));
+                            updateDashboard();
+                            alert('Data imported successfully!');
+                        }
+                    } catch (error) {
+                        alert('Error importing data. Please check the file format.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>
